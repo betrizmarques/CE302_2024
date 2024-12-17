@@ -1,0 +1,91 @@
+---
+title: "plista-05-chocolates"
+output: html_document
+date: "2024-12-16"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+require(tidyverse)
+require(dplyr)
+dados <- fread()
+```
+
+a.  Quantos países produzem chocotale?
+
+```{r}
+length(unique(dados$local_compania))
+```
+
+b.  Quantos chocolates existem com pelo menos 3 ingredientes?
+
+```{r}
+dados <-dados %>% 
+  mutate(quant_ingred = as.numeric(sub("-.*", "", dados$ingredientes)))
+
+contagem_ingredientes <- dados %>% 
+  filter(quant_ingred >= 3) %>% 
+  nrow()
+
+
+print(contagem_ingredientes)
+```
+
+c.  Quantos chocolates existem com 5 ingredientes?
+
+```{r}
+ingred_com_5 <- dados %>% 
+  filter(quant_ingred==5) %>% 
+  nrow()
+
+ingred_com_5
+```
+
+c.   Quantos chocolates existem com pelo menos 4 características memoráveis?
+
+```{r}
+
+seprado_por_vetor <- strsplit(as.character(dados$caracteristicas), ",")
+
+
+dados <- dados %>% 
+  mutate(quant_caracteristicas = sapply(seprado_por_vetor, length))
+
+chocolates_4_carac <- dados %>% 
+  filter(quant_caracteristicas <= 4) %>% 
+  nrow()
+
+chocolates_4_carac
+```
+
+c.   Quantos chocolates existem com Sal em sua composição?
+
+    ```{r}
+    chocolates_com_sal <- dados %>% 
+      filter(grepl("\\bS\\b", ingredientes)) %>% 
+      nrow()
+
+    chocolates_com_sal
+    ```
+
+d.   Quantos chocolates existem com Baunilha em sua composição?
+
+    ```{r}
+    chocolates_com_baunilha <- dados %>% 
+      filter(grepl("\\bB\\b", ingredientes)) %>% 
+      nrow()
+
+    chocolates_com_baunilha
+    ```
+
+e.   Quantos chocolates existem com Lecitina e Baunilha em sua composição?
+
+```{r}
+chocolates_com_lecitina_e_baunilha <- dados %>% 
+  filter(grepl("\\bB\\b", ingredientes) & grepl("\\bL\\b", ingredientes)) %>% 
+  nrow()
+chocolates_com_lecitina_e_baunilha
+```
