@@ -68,3 +68,15 @@ a_primos
 
 primos_totais <- sum(sapply(c(A, B, C), verificar_se_eh_primo))
 primos_totais
+
+
+resultados <- function(vetor){
+  media = sum(vetor)/length(vetor)
+  desvio = vetor - media
+  quadrados = desvio^2
+  variancia = sum(quadrados)/(length(vetor)-1)
+  desvio_padrao = sqrt(variancia)
+  dma = sum(abs(desvio))/(length(vetor)-1)
+  as2 = 3*((media-median(vetor))/sqrt(variancia))
+  return(variancia, dma, as2)
+}
