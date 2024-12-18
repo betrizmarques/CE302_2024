@@ -1,0 +1,222 @@
+---
+title: "Prova 1"
+author: "Leonardo Eizo Sakai"
+date: "2024-11-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(tidyverse)
+require(DescTools)
+```
+
+## Considere os dados de eficiências de máquinas descritas no vetor numérico nomeado em `Eficiencia` e a descrição da máquina ter sido submetida à algum teste de qualidade está no vetor lógico nomeado em `TestesQualidade`:
+
+Eficiencia
+
+##  Máquina 1  Máquina 2  Máquina 3  Máquina 4  Máquina 5 
+##      85.90      13.10      59.51      83.49      36.20 
+##  Máquina 6  Máquina 7  Máquina 8  Máquina 9 Máquina 10 
+##      60.90      49.76      29.27      79.65      73.49
+
+TestesQualidade
+
+##  Máquina 1  Máquina 2  Máquina 3  Máquina 4  Máquina 5 
+##       TRUE      FALSE      FALSE       TRUE      FALSE 
+##  Máquina 6  Máquina 7  Máquina 8  Máquina 9 Máquina 10 
+##       TRUE      FALSE      FALSE       TRUE       TRUE
+
+```{r}
+eficiencia <- c(85.90, 13.10, 59.51, 83.49, 36.20, 60.90, 49.76, 29.27, 79.65, 73.49)
+testesQualidade <- c(T,F,F,T,F,T,F,F,T,T)
+
+maquinas <- data.frame(eficiencia = eficiencia, testesQualidade = testesQualidade)
+```
+
+
+Responda as seguintes questões, considerando duas casas decimais.
+
+### a) A raiz quadrada da média de Eficiência das máquinas é:
+
+```{r}
+eficiencia %>% mean %>% sqrt
+```
+
+
+### b) A mediana da Eficiencia das máquinas que passaram nos testes de qualidade é:
+
+```{r}
+maq_testadas <-  filter(maquinas, maquinas$testesQualidade == T)
+maq_testadas %>% summarise(median(eficiencia))
+
+```
+
+
+### c) A maior Eficiencia entre as máquinas que não passaram nos testes de qualidade é:
+
+```{r}
+maquinas %>% filter(testesQualidade == F) %>% summarise(max(eficiencia))
+```
+
+
+### d) Assuma que a Eficiencia mínima para aprovação é 75, e máquinas com Eficiencia abaixo de 60 precisam de manutenção. A quantidade de máquinas que precisam de manutenção e passaram nos testes de qualidade é:
+
+```{r}
+maquinas %>% filter(eficiencia <= 60, testesQualidade == T)
+```
+
+### e) O desvio-padrão da Eficiencia das máquinas que passaram nos testes de qualidade é:
+
+```{r}
+sd(maq_testadas$eficiencia)
+```
+
+
+
+## 2. Uma equipe de agrônomos está avaliando o impacto de um novo fertilizante na produção de 10 culturas agrícolas em uma região ao longo de 5 meses. Para isso, as produções mensais em toneladas por hectare de cada cultura foram organizadas em matrizes de dimensões 5×10, onde cada linha representa um mês e cada coluna representa uma cultura. Considere as matrizes de produção antes da aplicação do fertilizante X e após a aplicação Y apresentadas abaixo.
+
+```{r}
+X <- matrix(c(0.1, 0.2, 0.7, 1.0, 0.3, 0.7, 0.6, 1.2 ,1.5, 1.3,
+              0.5, 1.2, 1.0, 1.4, 1.0, 1.1, 1.5, 0.4, 0.5, 1.5,
+              1.4, 0.9, 1.5, 0.4, 1.1, 0.7, 0.2, 0.1, 1.3, 0.3,
+              1.1, 0.6, 0.8, 0.7, 1.2, 0.5, 0.3, 0.9, 1.4, 1.2,
+              0.7, 0.6, 0.6, 0.5, 0.2, 0.1, 0.6, 0.5, 0.2, 1.0
+              ),nrow = 5, byrow = T)
+
+Y <- matrix(c(
+              1.3, 0.9, 0.4, 0.8, 0.9, 1.1, 0.8, 1.2, 1.1, 0.4,
+              0.3, 0.6, 1.3, 0.8, 1.1, 0.2, 0.8, 0.2, 0.1, 0.3,
+              0.2, 0.6, 0.2, 0.1, 1.1, 0.9, 0.8, 1.1, 1.3, 0.7,
+              0.8, 1.0, 0.6, 1.1, 1.0, 0.6, 0.7, 1.1, 0.5, 1.1,
+              1.5, 0.6, 0.5, 1.1, 0.6, 1.0, 1.4, 1.2, 0.4, 0.5
+              ), nrow = 5, byrow = T)
+```
+
+Responda as seguintes questões, considerando duas casas decimais.
+
+### a) Os agrônomos desejam identificar as culturas com maior média de produção antes da aplicação de um novo fertilizante. Escreva um código em R que calcule a média de produção para cada cultura e identifique a cultura com a maior média de produção. A cultura com maior média de produção é: 
+
+```{r}
+X %>% as.data.frame() %>% colMeans()
+```
+### b) Para avaliar a similaridade de produção entre as culturas após a aplicação do fertilizante, os agrônomos multiplicam a matriz (X) pela sua transposta, criando uma nova matriz que reflete as similaridades entre as culturas. A soma dos elementos da diagonal principal dessa matriz é 
+
+```{r}
+tcrossprod(X,X) %>% diag %>% sum
+```
+
+### c) Após a aplicação do fertilizante, um segundo conjunto de dados de produção foi coletado. A cultura que apresentou a maior alteração absoluta média de produção foi:
+
+```{r}
+abs(colMeans(X) - colMeans(Y))
+```
+
+### d) Mantendo apenas as cinco culturas com maior média de produção antes da aplicação do fertilizante, o determinante da matriz correspondente é:
+
+```{r}
+X[which(max(colMeans(X)))]
+```
+
+
+
+## 3. Considere o banco de dados contendo informações sobre 10000 restaurantes de Fast Food nos Estados Unidos. Considere que o ano de entrada na base (dateAdded) é a data de abertura do restaurante.
+
+Importante: Considere as seguintes alterações à serem realizadas nos nomes dos restaurantes:
+
+    Homogeinize os nomes dos restaurantes para letras maiúsculas/minusculas
+    Remova espaços em branco extras
+    Substititua apóstrofos (’S) por S
+    Remova abreviações de “JR.”, substituindo por “JR”
+    Substitua hífens por espaços
+
+```{r}
+restaurantes <- read_csv("dados/Datafiniti_Fast_Food_Restaurants.csv")
+glimpse(restaurantes)
+
+restaurantes$name %<>% 
+  str_to_title() %>%           # Homogeinize os nomes dos restaurantes para letras maiúsculas/minusculas
+  str_trim() %>%              # Remova espaços em branco extras
+  str_replace("'s","s") %>%   # Substititua apóstrofos (’S) por S
+  str_replace("JR.","JR") %>% # Remova abreviações de “JR.”, substituindo por “JR”
+  str_replace_all("-"," ")    # Substitua hífens por espaços
+```
+
+
+Responda as seguintes questões, considerando duas casas decimais.
+
+### a) Juntos, os estados LA, MS e CO possuem quantos restaurantes de Fast Food?
+
+```{r}
+LA_MS_CO <- restaurantes %>% filter(province %in% c("LA", "MS", "CO")) %>% group_by(province) %>% summarise(n = n())
+LA_MS_CO$n %>% sum
+```
+
+### b) Considerando o estado com mais restaurantes de Fast Food, dentre LA, MS e CO quantos restaurantes ele possui?
+
+```{r}
+LA_MS_CO %>% summary
+```
+
+### c) O estado que mais consome Fast Food da rede BOJANGLES é: 
+
+```{r}
+restaurantes %>% filter(name %like% "Bojangles")
+```
+
+### d) No ano de 2017 quantos restaurantes abriram no estado de AZ? 
+
+```{r}
+restaurantes %>% filter(year(dateAdded) == 2017, province == "AZ") %>% nrow
+```
+
+### e) No ano de 2015 a rede que mais expandiu foi a 
+
+```{r}
+restaurantes %>% filter(year(dateAdded) == 2015) %>% group_by(name) %>% summarise(n=n()) %>% arrange(desc(n)) %>% .[1,]
+```
+
+# 4. Para as perguntas a seguir, utilize o banco de dados proveninete do Tidytuesday de 2021, semana 48, que contém informações sobre a série de TV Dr. Who. Para carregar o banco, utilize a função abaixo. 
+
+```{r}
+#install.packages("tidytuesdayR")
+tuesdata <- tidytuesdayR::tt_load(2021, week = 48)
+tuesdata %>% glimpse
+```
+
+# 5. Considere o banco de dados contendo informações sobre o programa americano de calouros American Idol para responder as questões que seguem. Se necessário, utilize quatro casas decimais para arredondamento.
+
+```{r}
+american_idol <- read_csv("dados/American_Idol.csv")
+american_idol %>% glimpse
+```
+
+### a) Na Season_06, quantos(as) participantes distintos(as) cantaram músicas contendo a palavra Heart no título?
+
+```{r}
+american_idol %>% filter(season == "Season_06", grepl("(Heart)", song)) %>% group_by(contestant) %>% summarise(song)
+```
+### b) O(A) artista mais cantado dentre todos os(as) participantes cujo nome começa com a letra M é: 
+
+```{r}
+american_idol %>% filter(grepl("^M", contestant)) %>% group_by(artist) %>% summarise(n = n()) %>% arrange(desc(n))
+```
+
+### c) Na Season_04, quantos(as) participantes que se apresentaram após o(a) terceiro(a) candidato(a) não foram eliminados(as) da competição?
+
+```{r}
+american_idol %>% filter(season == "Season_04", order > 3, result != "Eliminated") %>% group_by(contestant) %>% summarise %>% nrow
+```
+### d) Qual a proporção de participantes que foram eliminados(as) na Season_08 cantando músicas do Bee Gees ou do Elton John?
+
+```{r}
+american_idol %>% filter(season == "Season_08", result == "Eliminated", artist %in% c("Bee Gees", "Elton John"))
+```
+
+### e) Qual é o nome da música que foi cantada por mais participantes distintos(as) ao longo de todas as temporadas? Desconsidere os participantes cujo nome contenha a letra E.
+
+```{r}
+american_idol %>% filter(!grepl("[Ee]", contestant)) %>% group_by(song)
+
+```
+
